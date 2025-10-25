@@ -7,3 +7,4 @@ jupyter
 ipython
 pdfminer.six
 sentence_transformers
+pypdf
