@@ -9,7 +9,7 @@ This project integrates multiple components, each governed by its own license. Y
 ## Included Components and Their Licenses
 
 ### 1. LLaMA 3.1 (Meta Platforms)
-- **License:** [LLaMA 3.1 Community License Agreement](LLAMA_LICENCE)
+- **License:** [LLaMA 3.1 Community License Agreement](LLAMA_LICENCE.md)
 - **Requirements:**
   - Include the full license text when redistributing
   - Display the notice “Built with LLaMA” prominently in the UI, documentation, or product description
