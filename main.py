@@ -1,14 +1,13 @@
 # %%
 
-from langchain_community.document_loaders import WebBaseLoader, PDFMinerLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_ollama import ChatOllama, OllamaEmbeddings
+
 from langchain_core.prompts.prompt import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from os import getenv
 
-API_KEY = getenv("APIKEY")
 
 prompt = PromptTemplate(
     template="""You are an assistant for question-answering tasks.
@@ -22,47 +21,51 @@ prompt = PromptTemplate(
     input_variables=["question", "documents"],
 )
 
-llm = ChatOllama(
-    model="kuffi",
-    temperature=0,
-)
-
-text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    chunk_size=250,
-    chunk_overlap=0
-)
-
-def load_documents():
-
-    urls = [
-        "https://www.fh-kufstein.ac.at/pdf-website/studium/ueber-das-studium/satzung/kapitel-1-aspo.pdf",
-        "https://www.fh-kufstein.ac.at/pdf-website/studium/ueber-das-studium/satzung/kapitel-5-gleichstellungsplan.pdf"
-    ]
-    # Load documents from the URLs
-    docs = [PDFMinerLoader(url).load() for url in urls]
-    docs_list = [item for sublist in docs for item in sublist]
-
-    docs_list = load_documents()
-
-
-    vectorstore = SKLearnVectorStore.from_documents(
-        documents=text_splitter.split_documents(docs_list),
-        embedding=OllamaEmbeddings(model="llama3.1:8b"),
-    )
-    return vectorstore.as_retriever(k=4)
 
 class RAGApplication:
-    def __init__(self):
-        self.retriever = load_documents()
-        self.rag_chain = prompt | llm | StrOutputParser()
 
+    def __init__(self, llm="llama3.1:8b", temp=0):
+
+        self.llm = ChatOllama(
+            model=llm,
+            temperature=temp,
+        )
+        self.rag_chain = prompt | self.llm | StrOutputParser()
+        self.text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            chunk_size=250,
+            chunk_overlap=0
+        )
+
+        self.docs_list = self.load_documents()
+        self.vectorstore = self.create_vectorstore()
+        self.retriever = self.vectorstore.as_retriever(
+            search_type="mmr",
+            search_kwargs={
+                "k": 5,
+            }
+        )
+
+    def load_documents(self):
+        files = [
+            "library/kapitel-1-aspo.pdf"
+        ]
+
+        docs = [PyPDFLoader(file).load() for file in files]
+        return [item for sublist in docs for item in sublist]
+
+    def create_vectorstore(self):
+
+        return SKLearnVectorStore.from_documents(
+            documents=self.text_splitter.split_documents(self.docs_list),
+            embedding=OllamaEmbeddings(model="llama3.1:8b"),
+        )
 
     def run(self, question):
-        # Retrieve relevant documents
+
         documents = self.retriever.invoke(question)
-        # Extract content from retrieved documents
+
         doc_texts = "\\n".join([doc.page_content for doc in documents])
-        # Get the answer from the language model
+
         answer = self.rag_chain.invoke({"question": question, "documents": doc_texts})
         return answer
 
@@ -70,7 +73,12 @@ class RAGApplication:
 rag_app = RAGApplication()
 
 # %%
-print(rag_app.retriever)
+dlist = rag_app.retriever.invoke("Wieviel Zeit habe ich beim Verfassen einer Masterarbeit?")
 
 # %%
-rag_app.run("How many words can my Bachelor Thesis have?")
+print(dlist[0].page_content)
+
+
+
+# %%
+rag_app.run("Welche Anforderungen an Bachelorarbeiten gibt es?")
