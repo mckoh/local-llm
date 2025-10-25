@@ -1,14 +1,14 @@
-# Local RAG Application with LLaMA
+# Local RAG Application built with LLaMA
 
 Eine einfache Implementierung einer Retrieval-Augmented Generation (RAG) Anwendung unter Verwendung von lokalen LLMs mit Ollama.
 
 ## Übersicht
 
 Diese Anwendung ermöglicht es, PDF-Dokumente zu laden und Fragen darüber zu stellen. Sie nutzt:
-- LLaMA 3.1 (8B Parameter) als Sprachmodell
-- Qwen Embeddings für die Vektorisierung
-- SKLearn für den Vektorspeicher
-- LangChain als Framework
+- **LLaMA 3.1** (8B Parameter) als Sprachmodell
+- **Qwen 3 Embeddings** (8B Parameter) für die Vektorisierung
+- **SKLearnVektorModel** als Vektorspeicher
+- **LangChain** als Sprach-Framework
 
 ## Installation
 
