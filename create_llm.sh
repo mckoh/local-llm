@@ -1,0 +1,1 @@
+ollama create mci_rep -f ./ModelFile
