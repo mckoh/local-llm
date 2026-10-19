@@ -20,8 +20,8 @@ pip install -r [requirements.txt](http://_vscodecontentref_/1)
 
 2. Stellen Sie sicher, dass Ollama installiert ist und die folgenden Modelle verfügbar sind:
 
-* llama3.1:8b
-* qwen3-embedding:8b
+* llama3.1
+* qwen3-embedding
 
 ## Verwendung
 
